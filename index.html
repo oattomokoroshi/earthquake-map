@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake Map</title>
+    <style>
+        /* Add your CSS styles for the map container here */
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Earthquake Map</h1>
+    <div id="map"></div>
+
+    <script>
+        // Function to create a Google Map
+        function initMap() {
+            // Initialize the map centered at a specific location
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 0, lng: 0 },
+                zoom: 2, // Set an initial zoom level
+            });
+
+            // Get the current date and time
+            const currentDate = new Date();
+
+            // Calculate the start time for the past 24 hours (in ISO8601 format)
+            currentDate.setDate(currentDate.getDate() - 1); // Subtract 1 day
+            const startTime = currentDate.toISOString();
+            console.log('startTime',startTime)
+
+            // Calculate the end time (current date and time) in ISO8601 format
+            const endTime = new Date().toISOString();
+            console.log('endTime',endTime)
+
+            // Generate the API URL with the dynamic start and end times
+            const apiUrl = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&endtime=${endTime}`;
+            console.log('apiUrl',apiUrl)
+            // Fetch earthquake data from the API for the past 24 hours
+            fetch(apiUrl)
+                .then((response) => response.json())
+                .then((data) => {
+                    // Loop through the earthquake data and add markers to the map
+                    data.features.forEach((earthquake) => {
+                        const latLng = {
+                            lat: earthquake.geometry.coordinates[1],
+                            lng: earthquake.geometry.coordinates[0],
+                        };
+
+                        const marker = new google.maps.Marker({
+                            position: latLng,
+                            map: map,
+                        });
+
+                        // Create a callout to display location and date/time on marker click
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<div>
+                                        <strong>Location:</strong> ${earthquake.properties.place}<br>
+                                        <strong>Date/Time:</strong> ${new Date(earthquake.properties.time)}
+                                      </div>`,
+                        });
+
+                        marker.addListener("click", () => {
+                            infoWindow.open(map, marker);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching earthquake data:", error);
+                });
+        }
+    </script>
+    <!-- Load the Google Maps JavaScript API with your API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCoe-7l1sP9JfjEO0zxAi4eclIxkPTT1WM&callback=initMap" async defer></script>
+</body>
+</html>
