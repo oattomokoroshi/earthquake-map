@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earthquake Map</title>
     <style>
-        /* Add your CSS styles for the map container here */
         #map {
             height: 500px;
             width: 100%;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            #map {
+                height: 300px; /* Adjust the height for mobile devices */
+            }
+            h1 {
+                font-size: 24px; /* Reduce the font size for mobile devices */
+            }
         }
     </style>
 </head>
@@ -28,18 +37,16 @@
             // Get the current date and time
             const currentDate = new Date();
 
-            // Calculate the start time for the past 24 hours (in ISO8601 format)
+            // Calculate the start time for the past 24 hours 
             currentDate.setDate(currentDate.getDate() - 1); // Subtract 1 day
             const startTime = currentDate.toISOString();
-            console.log('startTime',startTime)
 
-            // Calculate the end time (current date and time) in ISO8601 format
+            // Calculate the end time (current date and time) 
             const endTime = new Date().toISOString();
-            console.log('endTime',endTime)
 
             // Generate the API URL with the dynamic start and end times
             const apiUrl = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&endtime=${endTime}`;
-            console.log('apiUrl',apiUrl)
+
             // Fetch earthquake data from the API for the past 24 hours
             fetch(apiUrl)
                 .then((response) => response.json())
